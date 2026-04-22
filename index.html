@@ -5,6 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>高级网页排版模版库</title>
     <style>
+        /* ================= 生成器界面样式 ================= */
+        body.generator-mode {
+            display: flex;
+            scroll-snap-type: none; /* 关闭捕捉以便编辑 */
+            background-color: #f0f2f5;
+        }
+        #editor {
+            width: 380px;
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 2000;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+        }
+        #preview-area {
+            margin-left: 380px;
+            flex: 1;
+            min-height: 100vh;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+        .editor-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .editor-title {
+            font-size: 1.1rem;
+            color: #111;
+            margin-bottom: 0.5rem;
+        }
+        .upload-group, .text-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        #img-upload {
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .asset-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .asset-thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .asset-thumb.removed { opacity: 0.3; filter: grayscale(1); }
+        .asset-thumb:hover { border-color: #ff4d4f; }
+
+        #text-input {
+            width: 100%;
+            height: 80px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+        }
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .asset-item {
+            padding: 0.6rem 1rem;
+            background: #f8f9fa;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #ff4d4f;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #template-select {
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .editor-actions {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-primary {
+            padding: 1rem;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            padding: 0.8rem;
+            background: #eee;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: #ddd; }
+
         /* ================= 全局重置与基础样式 ================= */
         * {
             margin: 0;
@@ -241,7 +383,7 @@
             padding: 0 2rem;
         }
         .cta-content h2 { font-size: 4rem; margin-bottom: 2rem; }
-        .btn-primary {
+        .cta-btn {
             padding: 1.2rem 3.5rem;
             font-size: 1.2rem;
             background: #fff;
@@ -252,7 +394,7 @@
             font-weight: 600;
             transition: all 0.3s ease;
         }
-        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255,255,255,0.2); }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255,255,255,0.2); }
 
         /* ================= 新增：Bento Box (便当盒) 布局 - 升级版 ================= */
         .layout-bento {
@@ -471,49 +613,60 @@
             .hero-content h1 { font-size: 2.5rem; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
-<body>
+<body class="generator-mode">
 
-    <!-- 顶部导航选项卡 -->
-    <nav class="tab-nav">
-        <button class="tab-btn" data-target="vision">核心愿景</button>
-        <button class="tab-btn" data-target="solution">产品方案</button>
-        <button class="tab-btn" data-target="zpattern">Z型布局</button>
-        <button class="tab-btn" data-target="magazine">杂志网格</button>
-        <button class="tab-btn" data-target="bento">便当盒</button>
-        <button class="tab-btn" data-target="editorial">编辑叠层</button>
-        <button class="tab-btn" data-target="canvas">漂浮画布</button>
-        <button class="tab-btn" data-target="cards">独立卡片</button>
-        <button class="tab-btn" data-target="cta">立即加入</button>
-    </nav>
-
-    <!-- Section 1: Vision -->
-    <section id="vision" class="template-section section-vision">
-        <div class="vision-overlay"></div>
-        <div class="vision-content">
-            <h1>定义智能时代的<br>协作新范式</h1>
-            <p>我们不只是在构建一个工具，而是在重新定义人类与数字世界交互的方式。通过深度集成AI感知能力，将碎片化的信息转化为连续的认知流。</p>
-            <button class="btn-primary">探索愿景</button>
-        </div>
-    </section>
-
-    <!-- Section 2: Solution -->
-    <section id="solution" class="template-section section-solution">
-        <div class="sol-block">
-            <div class="sol-img"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"></div>
-            <div class="sol-text">
-                <h2>从碎片化到系统化</h2>
-                <p>在传统的工作流中，信息散落在数十个应用之间。我们通过统一的语义层将所有数据打通，让你的每一个想法都能在瞬间找到支撑点。</p>
+    <!-- 内容编辑面板 -->
+    <div id="editor">
+        <div class="editor-section">
+            <h3 class="editor-title">🖼️ 资源上传</h3>
+            <div class="upload-group">
+                <input type="file" id="img-upload" multiple accept="image/*">
+                <div id="img-preview-list" class="asset-preview-grid"></div>
             </div>
         </div>
-        <div class="sol-block">
-            <div class="sol-img"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38a71?auto=format&fit=crop&w=800&q=80"></div>
-            <div class="sol-text">
-                <h2>直觉式交互体验</h2>
-                <p>摒弃繁琐的菜单和配置，采用自然语言驱动的界面。你不再需要学习软件如何运行，而是让软件适应你的思维习惯。</p>
+
+        <div class="editor-section">
+            <h3 class="editor-title">✍️ 文案编辑</h3>
+            <div class="text-input-group">
+                <textarea id="text-input" placeholder="输入一段话..."></textarea>
+                <button id="add-text-btn" class="btn-secondary">保存段落</button>
             </div>
+            <div id="text-list" class="asset-list"></div>
         </div>
-    </section>
+
+        <div class="editor-section">
+            <h3 class="editor-title">🎨 模版选择</h3>
+            <select id="template-select">
+                <option value="vision">核心愿景 (Hero)</option>
+                <option value="solution">产品方案 (Alternating)</option>
+                <option value="zpattern">Z型布局 (Ecosystem)</option>
+                <option value="magazine">杂志网格 (Magazine)</option>
+                <option value="bento">便当盒 (Bento Box)</option>
+                <option value="editorial">编辑叠层 (Editorial)</option>
+                <option value="canvas">漂浮画布 (Canvas)</option>
+                <option value="cards">独立卡片 (Cards)</option>
+            </select>
+        </div>
+
+        <div class="editor-actions">
+            <button id="generate-btn" class="btn-primary">立即生成页面</button>
+            <button id="export-btn" class="btn-secondary">保存为图片</button>
+            <button id="clear-assets-btn" class="btn-secondary" style="color: #ff4d4f;">清空所有资源</button>
+        </div>
+    </div>
+
+    <!-- 预览区域 -->
+    <div id="preview-area">
+        <div class="empty-state">
+            <h2 style="text-align:center; margin-top:20vh;">准备好创造你的页面了吗？</h2>
+            <p style="text-align:center;">在左侧上传图片并输入文字，选择一个模版然后点击生成。</p>
+        </div>
+    </div>
+
+    <!-- 原始模版引用 (隐藏，仅用于保留样式) -->
+    <div id="template-library" style="display:none">
 
 
     <!-- 模版三：Z字视线引导 (Z-Pattern) -->
@@ -661,27 +814,302 @@
         </div>
     </section>
 
-    <!-- 切换逻辑脚本 -->
+    </div> <!-- Close template-library -->
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const btns = document.querySelectorAll('.tab-btn');
+            // ================= 状态管理 =================
+            const PageState = {
+                images: [], // 存储 Blob URL
+                texts: [],  // 存储字符串数组
+                currentTemplate: 'vision'
+            };
 
-            btns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const targetId = btn.getAttribute('data-target');
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        // 滚动到对应位置，留出导航栏高度 (70px)
-                        const offset = 70;
-                        const elementPosition = targetSection.getBoundingClientRect().top + window.pageYOffset;
-                        
-                        window.scrollTo({
-                            top: elementPosition - offset,
-                            behavior: 'smooth'
-                        });
-                    }
+            // DOM 元素引用
+            const imgUpload = document.getElementById('img-upload');
+            const imgPreviewList = document.getElementById('img-preview-list');
+            const textInput = document.getElementById('text-input');
+            const addTextBtn = document.getElementById('add-text-btn');
+            const textList = document.getElementById('text-list');
+            const templateSelect = document.getElementById('template-select');
+            const generateBtn = document.getElementById('generate-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const clearAssetsBtn = document.getElementById('clear-assets-btn');
+            const previewArea = document.getElementById('preview-area');
+
+            // ================= 资源处理 =================
+
+            // 图片上传
+            imgUpload.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                files.forEach(file => {
+                    const url = URL.createObjectURL(file);
+                    PageState.images.push(url);
                 });
+                updateAssetPreviews();
             });
+
+            // 保存段落
+            addTextBtn.addEventListener('click', () => {
+                const val = textInput.value.trim();
+                if (val) {
+                    PageState.texts.push(val);
+                    textInput.value = '';
+                    updateAssetPreviews();
+                }
+            });
+
+            function updateAssetPreviews() {
+                // 更新图片缩略图
+                imgPreviewList.innerHTML = PageState.images.map((url, idx) => `
+                    <img src="${url}" class="asset-thumb" onclick="removeImage(${idx})" title="点击删除">
+                `).join('');
+
+                // 更新文本列表
+                textList.innerHTML = PageState.texts.map((txt, idx) => `
+                    <div class="asset-item">
+                        <span>${txt.substring(0, 20)}${txt.length > 20 ? '...' : ''}</span>
+                        <button class="btn-remove" onclick="removeText(${idx})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            // 全局删除方法 (挂载到 window 以便 inline onclick 调用)
+            window.removeImage = (idx) => {
+                PageState.images.splice(idx, 1);
+                updateAssetPreviews();
+            };
+            window.removeText = (idx) => {
+                PageState.texts.splice(idx, 1);
+                updateAssetPreviews();
+            };
+
+            clearAssetsBtn.addEventListener('click', () => {
+                if (confirm('确定要清空所有上传的资源吗？')) {
+                    PageState.images = [];
+                    PageState.texts = [];
+                    updateAssetPreviews();
+                    renderPage(); // 同时刷新预览区域显示空状态
+                }
+            });
+
+            // ================= 渲染引擎 (TemplateEngine) =================
+
+            function renderPage() {
+                const templateId = templateSelect.value;
+                const imgs = PageState.images;
+                const txts = PageState.texts;
+
+                if (imgs.length === 0 && txts.length === 0) {
+                    previewArea.innerHTML = `
+                        <div class="empty-state">
+                            <h2 style="text-align:center; margin-top:20vh;">内容不足</h2>
+                            <p style="text-align:center;">请先上传图片或输入文字后再生成页面。</p>
+                        </div>`;
+                    return;
+                }
+
+                // 辅助函数：安全获取数据，若缺失则提供中性占位符
+                const getImg = (i) => imgs[i] || 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800"><rect width="800" height="800" fill="%23eee"/><text x="50%" y="50%" font-family="Arial" font-size="30" text-anchor="middle" fill="%23aaa">图片占位符</text></svg>';
+                const getTxt = (i) => txts[i] || '这里是默认的占位文字，请在左侧输入您的内容来替换我。';
+
+                let html = '';
+
+                switch (templateId) {
+                    case 'vision':
+                        html = `
+                            <section class="template-section section-vision" style="background-image: url('${getImg(0)}')">
+                                <div class="vision-overlay"></div>
+                                <div class="vision-content">
+                                    <h1>${getTxt(0).split('。')[0]}</h1>
+                                    <p>${getTxt(0)}</p>
+                                    <button class="btn-primary">探索更多</button>
+                                </div>
+                            </section>`;
+                        break;
+
+                    case 'solution':
+                        const solBlocks = [];
+                        const count = Math.max(imgs.length, txts.length);
+                        for (let i = 0; i < count; i++) {
+                            solBlocks.push(`
+                                <div class="sol-block">
+                                    <div class="sol-img"><img src="${getImg(i)}"></div>
+                                    <div class="sol-text">
+                                        <h2>${getTxt(i).split('。')[0]}</h2>
+                                        <p>${getTxt(i)}</p>
+                                    </div>
+                                </div>`);
+                        }
+                        html = `<section class="template-section section-solution">${solBlocks.join('')}</section>`;
+                        break;
+
+                    case 'zpattern':
+                        const zRows = [];
+                        const zCount = Math.max(imgs.length, txts.length);
+                        for (let i = 0; i < zCount; i++) {
+                            zRows.push(`
+                                <div class="z-row">
+                                    <div class="z-image"><img src="${getImg(i)}"></div>
+                                    <div class="z-text">
+                                        <h2>${getTxt(i).split('。')[0]}</h2>
+                                        <p class="subtitle">核心亮点 ${i+1}</p>
+                                        <p>${getTxt(i)}</p>
+                                    </div>
+                                </div>`);
+                        }
+                        html = `<section class="template-section"><div class="layout-z-pattern">${zRows.join('')}</div></section>`;
+                        break;
+
+                    case 'magazine':
+                        html = `
+                            <section class="template-section">
+                                <div class="layout-magazine">
+                                    <div class="mag-title-block">
+                                        <h1>${getTxt(0).split('。')[0]}</h1>
+                                        <p class="subtitle">${getTxt(1) || '数字画报探索'}</p>
+                                    </div>
+                                    <div class="mag-img-1"><img src="${getImg(0)}"></div>
+                                    <div class="mag-text-1">
+                                        <h2>${getTxt(2).split('。')[0]}</h2>
+                                        <p>${getTxt(2)}</p>
+                                    </div>
+                                    <div class="mag-text-2">
+                                        <h2>${getTxt(3).split('。')[0]}</h2>
+                                        <p>${getTxt(3)}</p>
+                                    </div>
+                                    <div class="mag-img-2"><img src="${getImg(1)}"></div>
+                                </div>
+                            </section>`;
+                        break;
+
+                    case 'bento':
+                        const bentoItems = [
+                            { cls: 'bento-main', img: getImg(0), txt: getTxt(0) },
+                            { cls: 'bento-tall', img: getImg(1), txt: getTxt(1) },
+                            { cls: 'bento-wide text-only', img: null, txt: getTxt(2) },
+                            { cls: '', img: getImg(2), txt: getTxt(3) },
+                            { cls: '', img: getImg(3), txt: getTxt(4) }
+                        ];
+                        const bentoHtml = bentoItems.map(item => `
+                            <div class="bento-item ${item.cls}">
+                                ${item.img ? `<img src="${item.img}" class="bento-img">` : ''}
+                                <div class="bento-content">
+                                    <h3>${item.txt.split('。')[0]}</h3>
+                                    <p>${item.txt}</p>
+                                </div>
+                            </div>`).join('');
+                        html = `<section class="template-section"><div class="layout-bento">${bentoHtml}</div></section>`;
+                        break;
+
+                    case 'editorial':
+                        const editBlocks = [];
+                        const eCount = Math.max(imgs.length, txts.length);
+                        for (let i = 0; i < eCount; i++) {
+                            editBlocks.push(`
+                                <div class="edit-block">
+                                    <div class="edit-img-wrap"><img src="${getImg(i)}"></div>
+                                    <div class="edit-text-wrap">
+                                        <h2>${getTxt(i).split('。')[0]}</h2>
+                                        <p>${getTxt(i)}</p>
+                                    </div>
+                                </div>`);
+                        }
+                        html = `<section class="template-section"><div class="layout-editorial">${editBlocks.join('')}</div></section>`;
+                        break;
+
+                    case 'canvas':
+                        const canvasItems = [];
+                        for (let i = 0; i < 5; i++) {
+                            canvasItems.push(`
+                                <div class="canvas-item c-${i+1}" style="--rot: ${(Math.random()*10 - 5)}deg;">
+                                    <img src="${getImg(i)}">
+                                </div>`);
+                        }
+                        html = `
+                            <section class="template-section">
+                                <div class="layout-canvas">
+                                    <div class="canvas-center">
+                                        <h2>${getTxt(0).split('。')[0]}</h2>
+                                        <p>${getTxt(1) || getTxt(0)}</p>
+                                    </div>
+                                    ${canvasItems.join('')}
+                                </div>
+                            </section>`;
+                        break;
+
+                    case 'cards':
+                        const cardItems = [];
+                        const cCount = Math.max(imgs.length, txts.length);
+                        for (let i = 0; i < cCount; i++) {
+                            cardItems.push(`
+                                <div class="card">
+                                    <div class="card-img-wrapper"><img src="${getImg(i)}"></div>
+                                    <div class="card-content">
+                                        <h3>${getTxt(i).split('。')[0]}</h3>
+                                        <p>${getTxt(i)}</p>
+                                    </div>
+                                </div>`);
+                        }
+                        html = `
+                            <section class="template-section">
+                                <div class="layout-cards-container">
+                                    <div class="cards-header">
+                                        <h1>${getTxt(0).split('。')[0]}</h1>
+                                        <p class="subtitle">${getTxt(1) || '模块化内容呈现'}</p>
+                                    </div>
+                                    <div class="cards-grid">${cardItems.join('')}</div>
+                                </div>
+                            </section>`;
+                        break;
+                }
+
+                previewArea.innerHTML = html;
+            }
+
+            // ================= 事件绑定 =================
+
+            generateBtn.addEventListener('click', renderPage);
+
+            exportBtn.addEventListener('click', async () => {
+                if (previewArea.querySelector('.empty-state')) {
+                    alert('请先生成页面再导出图片');
+                    return;
+                }
+
+                try {
+                    // 创建一个临时容器，用于去除 margin-left 影响
+                    const clone = previewArea.cloneNode(true);
+                    clone.style.marginLeft = '0';
+                    clone.style.position = 'absolute';
+                    clone.style.top = '-10000px';
+                    clone.style.left = '0';
+                    clone.style.width = previewArea.clientWidth + 'px';
+                    document.body.appendChild(clone);
+
+                    const canvas = await html2canvas(clone, {
+                        scale: 2, // 高清导出
+                        useCORS: true, // 处理跨域图片
+                        logging: false,
+                        backgroundColor: '#fff',
+                        windowWidth: clone.scrollWidth,
+                        windowHeight: clone.scrollHeight
+                    });
+
+                    document.body.removeChild(clone);
+
+                    const link = document.createElement('a');
+                    link.download = `generated-page-${Date.now()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (err) {
+                    console.error('导出失败:', err);
+                    alert('图片导出失败，请检查浏览器权限或控制台错误。');
+                }
+            });
+
+            // 初始化
+            updateAssetPreviews();
         });
     </script>
 </body>
