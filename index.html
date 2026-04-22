@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级网页排版模版库</title>
+    <style>
+        /* ================= 全局重置与基础样式 ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #333;
+            background-color: #f9f9f9;
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory; /* 开启纵向滚动捕捉，让页面像幻灯片一样精准对齐 */
+        }
+        img {
+            max-width: 100%;
+            display: block;
+            object-fit: cover; /* 强制裁剪填充，防止任何拉伸变形 */
+        }
+        h1, h2, h3 {
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        p {
+            margin-bottom: 1.5rem;
+            color: #555;
+            font-size: 1.05rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #777;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* ================= 顶部选项卡导航 ================= */
+        .tab-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            padding: 1rem 0;
+            z-index: 1000;
+            gap: 1rem;
+        }
+        .tab-btn {
+            background: transparent;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+        .tab-btn:hover {
+            border-color: #333;
+            color: #111;
+        }
+        .tab-btn.active {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        /* ================= 模版容器控制 ================= */
+        .template-section {
+            display: block; /* 全部显示，整合为一个页面 */
+            min-height: 100vh;
+            padding-bottom: 4rem; 
+            animation: fadeIn 0.5s ease forwards;
+            scroll-snap-align: start; /* 每个部分在滚动时自动捕捉到顶部 */
+            position: relative;
+        }
+        #hero {
+            padding-top: 70px; /* 仅首屏避开固定导航栏 */
+        }
+        .template-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= 产品汇报专属视觉系统 ================= */
+        
+        /* Vision - 核心愿景 (沉浸式) */
+        .section-vision {
+            position: relative;
+            height: 900px;
+            background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .vision-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            z-index: 1;
+        }
+        .vision-content {
+            position: relative;
+            z-index: 2;
+            color: #fff;
+            max-width: 900px;
+            padding: 2rem;
+        }
+        .vision-content h1 { font-size: 4.5rem; letter-spacing: -1px; margin-bottom: 1.5rem; }
+        .vision-content p { font-size: 1.4rem; color: #ccc; max-width: 700px; margin: 0 auto 2rem; }
+
+        /* Solution - 产品方案 (叠层编辑风) */
+        .section-solution {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+        }
+        .sol-block {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin-bottom: 8rem;
+        }
+        .sol-block:nth-child(even) { flex-direction: row-reverse; }
+        .sol-img {
+            flex: 1;
+            box-shadow: 40px 40px 80px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .sol-img img { width: 100%; display: block; }
+        .sol-text {
+            flex: 1;
+            padding: 3rem;
+            background: #fff;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin: -40px; /* 制造重叠感 */
+            z-index: 2;
+        }
+        .sol-text h2 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+
+        /* Features - 核心能力 (Bento Grid) */
+        .section-features {
+            max-width: 1300px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 280px);
+            gap: 2rem;
+        }
+        .feat-item {
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            border: 1px solid #eee;
+        }
+        .feat-item:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
+        .feat-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .feat-item:hover .feat-img { transform: scale(1.05); }
+        .feat-overlay {
+            position: absolute;
+            inset: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+            color: #fff;
+        }
+        .feat-item.highlight { background: #111; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+        .f-main { grid-column: span 2; grid-row: span 2; }
+        .f-tall { grid-column: span 1; grid-row: span 2; }
+        .f-wide { grid-column: span 2; grid-row: span 1; }
+
+        /* Ecosystem - 生态场景 (Z-Pattern) */
+        .section-ecosystem {
+            max-width: 1200px;
+            margin: 8rem auto;
+            padding: 0 2rem;
+        }
+        .eco-row {
+            display: flex;
+            align-items: center;
+            gap: 6rem;
+            margin-bottom: 8rem;
+        }
+        .eco-row:nth-child(even) { flex-direction: row-reverse; }
+        .eco-img { flex: 1; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
+        .eco-text { flex: 1; }
+        .eco-text h2 { font-size: 2.8rem; margin-bottom: 1.5rem; }
+
+        /* Metrics - 性能指标 (Grid/Cards) */
+        .section-metrics {
+            background: #fff;
+            padding: 8rem 0;
+            text-align: center;
+        }
+        .metrics-grid {
+            max-width: 1200px;
+            margin: 4rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            padding: 0 2rem;
+        }
+        .metric-card { padding: 3rem 2rem; border-radius: 24px; background: #fbfbfb; transition: all 0.3s ease; }
+        .metric-card:hover { background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .metric-value { font-size: 4rem; font-weight: 800; color: #111; margin-bottom: 0.5rem; display: block; }
+        .metric-label { font-size: 1.1rem; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* CTA - 立即加入 (Minimalist) */
+        .section-cta {
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: #111;
+            color: #fff;
+            padding: 0 2rem;
+        }
+        .cta-content h2 { font-size: 4rem; margin-bottom: 2rem; }
+        .btn-primary {
+            padding: 1.2rem 3.5rem;
+            font-size: 1.2rem;
+            background: #fff;
+            color: #111;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255,255,255,0.2); }
+
+        /* ================= 新增：Bento Box (便当盒) 布局 - 升级版 ================= */
+        .layout-bento {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 250px);
+            gap: 1.5rem;
+        }
+        .bento-item {
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .bento-item:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .bento-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        .bento-item:hover .bento-img {
+            transform: scale(1.1);
+        }
+        .bento-content {
+            position: absolute;
+            inset: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+            color: #fff;
+            backdrop-filter: blur(2px);
+        }
+        .bento-item.text-only {
+            background: #111;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            border: none;
+        }
+        .bento-main { grid-column: span 2; grid-row: span 2; }
+        .bento-tall { grid-column: span 1; grid-row: span 2; }
+        .bento-wide { grid-column: span 2; grid-row: span 1; }
+        .bento-content h3 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff; }
+        .bento-content p { font-size: 1rem; color: rgba(255,255,255,0.8); margin: 0; }
+
+        /* ================= 新增：叠层编辑风 (Editorial Overlap) - 升级版 ================= */
+        .layout-editorial {
+            max-width: 1100px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+        .edit-block {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8rem;
+        }
+        .edit-block:nth-child(even) { flex-direction: row-reverse; }
+        .edit-img-wrap {
+            flex: 1.2;
+            position: relative;
+            z-index: 1;
+        }
+        .edit-img-wrap img {
+            width: 100%;
+            border-radius: 4px;
+            box-shadow: 30px 30px 60px rgba(0,0,0,0.1);
+            transition: transform 0.5s ease;
+        }
+        .edit-block:hover .edit-img-wrap img {
+            transform: scale(1.02) rotate(-1deg);
+        }
+        .edit-text-wrap {
+            flex: 1;
+            padding: 0 4rem;
+            position: relative;
+            z-index: 2;
+        }
+        .edit-block:nth-child(odd) .edit-text-wrap { margin-left: -15%; background: #fff; padding: 3.5rem; box-shadow: 20px 20px 50px rgba(0,0,0,0.08); border-radius: 4px; }
+        .edit-block:nth-child(even) .edit-text-wrap { margin-right: -15%; background: #fff; padding: 3.5rem; box-shadow: -20px 20px 50px rgba(0,0,0,0.08); border-radius: 4px; }
+        .edit-text-wrap h2 { font-size: 3rem; margin-bottom: 1.5rem; position: relative; letter-spacing: -1px; }
+        .edit-text-wrap h2::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 80px; height: 4px; background: #111; }
+        .edit-text-wrap p { font-size: 1.15rem; line-height: 1.8; color: #666; }
+
+        /* ================= 新增：漂浮画布 (Floating Canvas) 布局 ================= */
+        .layout-canvas {
+            position: relative;
+            min-height: 900px;
+            max-width: 1300px;
+            margin: 6rem auto;
+            padding: 4rem 2rem;
+        }
+        .canvas-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            width: 600px;
+        }
+        .canvas-center h2 { font-size: 4rem; letter-spacing: -2px; margin-bottom: 1rem; line-height: 1; }
+        .canvas-center p { font-size: 1.3rem; color: #888; max-width: 500px; margin: 0 auto; }
+
+        .canvas-item {
+            position: absolute;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            transition: all 0.4s ease;
+            animation: float 6s ease-in-out infinite;
+        }
+        .canvas-item:hover {
+            z-index: 20 !important;
+            transform: scale(1.1) rotate(0deg) !important;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+        }
+        .canvas-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 分布位置与动画偏移 */
+        .c-1 { width: 350px; height: 450px; top: 10%; left: 5%; transform: rotate(-5deg); animation-delay: 0s; z-index: 2; }
+        .c-2 { width: 400px; height: 300px; top: 15%; right: 8%; transform: rotate(3deg); animation-delay: -1s; z-index: 1; }
+        .c-3 { width: 300px; height: 400px; bottom: 12%; left: 12%; transform: rotate(6deg); animation-delay: -2s; z-index: 3; }
+        .c-4 { width: 450px; height: 350px; bottom: 8%; right: 5%; transform: rotate(-4deg); animation-delay: -3s; z-index: 2; }
+        .c-5 { width: 250px; height: 250px; top: 40%; left: 2%; transform: rotate(-10deg); animation-delay: -4s; z-index: 1; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+            50% { transform: translateY(-20px) rotate(calc(var(--rot, 0deg) + 2deg)); }
+        }
+
+        /* ================= Z字视线引导布局样式 ================= */
+        .layout-z-pattern {
+            max-width: 1200px;
+            margin: 8rem auto;
+            padding: 0 2rem;
+        }
+        .z-row {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin-bottom: 6rem;
+        }
+        .z-row:nth-child(even) { flex-direction: row-reverse; }
+        .z-image, .z-text { flex: 1; }
+        .z-image img { border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); transition: transform 0.5s ease; }
+        .z-row:hover .z-image img { transform: scale(1.02); }
+
+        /* ================= 杂志画报网格样式 ================= */
+        .layout-magazine {
+            max-width: 1200px;
+            margin: 8rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 3rem;
+            align-items: center;
+        }
+        .mag-title-block {
+            grid-column: span 6;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .mag-img-1 { grid-column: span 4; }
+        .mag-img-1 img { border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .mag-text-1 { grid-column: span 2; padding-left: 2rem; }
+        .mag-text-2 { grid-column: span 2; padding-right: 2rem; text-align: right; }
+        .mag-img-2 { grid-column: span 4; }
+        .mag-img-2 img { border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+        /* ================= 独立卡片布局样式 ================= */
+        .layout-cards-container {
+            max-width: 1200px;
+            margin: 8rem auto;
+            padding: 0 2rem;
+        }
+        .cards-header { text-align: center; margin-bottom: 4rem; }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid #eee;
+        }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
+        .card-img-wrapper img { width: 100%; height: 240px; object-fit: cover; transition: transform 0.5s ease; }
+        .card:hover .card-img-wrapper img { transform: scale(1.08); }
+        .card-content { padding: 2rem; }
+
+        /* 响应式调整 */
+
+        /* 响应式调整 - 已禁用以保持手机与电脑布局一致 */
+        @media (max-width: 900px) {
+            .hero-content h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航选项卡 -->
+    <nav class="tab-nav">
+        <button class="tab-btn" data-target="vision">核心愿景</button>
+        <button class="tab-btn" data-target="solution">产品方案</button>
+        <button class="tab-btn" data-target="zpattern">Z型布局</button>
+        <button class="tab-btn" data-target="magazine">杂志网格</button>
+        <button class="tab-btn" data-target="bento">便当盒</button>
+        <button class="tab-btn" data-target="editorial">编辑叠层</button>
+        <button class="tab-btn" data-target="canvas">漂浮画布</button>
+        <button class="tab-btn" data-target="cards">独立卡片</button>
+        <button class="tab-btn" data-target="cta">立即加入</button>
+    </nav>
+
+    <!-- Section 1: Vision -->
+    <section id="vision" class="template-section section-vision">
+        <div class="vision-overlay"></div>
+        <div class="vision-content">
+            <h1>定义智能时代的<br>协作新范式</h1>
+            <p>我们不只是在构建一个工具，而是在重新定义人类与数字世界交互的方式。通过深度集成AI感知能力，将碎片化的信息转化为连续的认知流。</p>
+            <button class="btn-primary">探索愿景</button>
+        </div>
+    </section>
+
+    <!-- Section 2: Solution -->
+    <section id="solution" class="template-section section-solution">
+        <div class="sol-block">
+            <div class="sol-img"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"></div>
+            <div class="sol-text">
+                <h2>从碎片化到系统化</h2>
+                <p>在传统的工作流中，信息散落在数十个应用之间。我们通过统一的语义层将所有数据打通，让你的每一个想法都能在瞬间找到支撑点。</p>
+            </div>
+        </div>
+        <div class="sol-block">
+            <div class="sol-img"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38a71?auto=format&fit=crop&w=800&q=80"></div>
+            <div class="sol-text">
+                <h2>直觉式交互体验</h2>
+                <p>摒弃繁琐的菜单和配置，采用自然语言驱动的界面。你不再需要学习软件如何运行，而是让软件适应你的思维习惯。</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 模版三：Z字视线引导 (Z-Pattern) -->
+    <section id="zpattern" class="template-section">
+        <div class="layout-z-pattern">
+            <div class="z-row">
+                <div class="z-image">
+                    <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80" alt="室内设计">
+                </div>
+                <div class="z-text">
+                    <h2>构建呼吸感</h2>
+                    <p class="subtitle">打破视觉的沉闷与僵化</p>
+                    <p>当视线在屏幕上游走时，Z字型的布局完美契合了人类自然的阅读习惯。图文交错的节奏感，仿佛一首优雅的视觉圆舞曲，引领着读者的目光在信息节点间跳跃。</p>
+                </div>
+            </div>
+            <div class="z-row">
+                <div class="z-image">
+                    <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80" alt="家居细节">
+                </div>
+                <div class="z-text">
+                    <h2>质感的触递</h2>
+                    <p class="subtitle">细节决定设计的上限</p>
+                    <p>我们不仅是在堆砌元素，更是在编织体验。通过高清的材质展现与恰到好处的留白，使得平面的网页产生了立体的空间感。这种错落有致的排列，让阅读本身成为一种探索的乐趣。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 模版四：杂志画报网格 (Magazine Grid) -->
+    <section id="magazine" class="template-section">
+        <div class="layout-magazine">
+            <div class="mag-title-block">
+                <h1>现代主义数字画报</h1>
+                <p class="subtitle">不对称中的绝对平衡与美感</p>
+            </div>
+            
+            <div class="mag-img-1">
+                <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80" alt="宽幅室内">
+            </div>
+            <div class="mag-text-1">
+                <h2>解构与重组</h2>
+                <p>打破传统网格的束缚，采用大面积的色块与突破边界的图片交叠，营造出如同高级时尚杂志般的阅读质感。文字不再仅仅是内容的载体，它们本身化为了画面的几何切割线。</p>
+            </div>
+
+            <div class="mag-text-2">
+                <h2>情绪的容器</h2>
+                <p>排版是情绪的容器。大胆的错位设计，看似不经意，实则经过严密的栅格系统计算。它在挑战常规视觉预期的同时，牢牢锁定了用户的注意力。</p>
+            </div>
+            <div class="mag-img-2">
+                <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80" alt="局部空间">
+            </div>
+        </div>
+    </section>
+
+    <!-- 新增模版：Bento Box (便当盒布局) -->
+    <section id="bento" class="template-section">
+        <div class="layout-bento">
+            <div class="bento-item bento-main">
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" class="bento-img">
+                <div class="bento-content"><h3>空间的哲学</h3><p>极简主义的深度探索</p></div>
+            </div>
+            <div class="bento-item bento-tall">
+                <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=600&q=80" class="bento-img">
+                <div class="bento-content"><h3>光影流动</h3></div>
+            </div>
+            <div class="bento-item bento-wide text-only">
+                <div><h2>模块化美学</h2><p>将信息碎片转化为视觉艺术</p></div>
+            </div>
+            <div class="bento-item">
+                <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80" class="bento-img">
+                <div class="bento-content"><h3>呼吸感</h3></div>
+            </div>
+            <div class="bento-item">
+                <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80" class="bento-img">
+                <div class="bento-content"><h3>触递质感</h3></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 新增模版：叠层编辑风 (Editorial Overlap) -->
+    <section id="editorial" class="template-section">
+        <div class="layout-editorial">
+            <div class="edit-block">
+                <div class="edit-img-wrap"><img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80"></div>
+                <div class="edit-text-wrap"><h2>解构主义</h2><p>打破常规的边界，让文字在影像之上轻盈起舞。这种重叠不仅是视觉上的层次感，更是内容与情感的交织。</p></div>
+            </div>
+            <div class="edit-block">
+                <div class="edit-img-wrap"><img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80"></div>
+                <div class="edit-text-wrap"><h2>情绪容器</h2><p>通过大面积的留白与精准的色块堆叠，将设计转化为一种能够呼吸的艺术形式。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 新增模版：漂浮画布 (Floating Canvas) -->
+    <section id="canvas" class="template-section">
+        <div class="layout-canvas">
+            <div class="canvas-center">
+                <h2>视觉共鸣</h2>
+                <p>在无序中寻找秩序，在碎片中重构整体。这是一个关于灵感与直觉的自由地带。</p>
+            </div>
+            <div class="canvas-item c-1" style="--rot: -5deg;"><img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=500&q=80"></div>
+            <div class="canvas-item c-2" style="--rot: 3deg;"><img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=500&q=80"></div>
+            <div class="canvas-item c-3" style="--rot: 6deg;"><img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=500&q=80"></div>
+            <div class="canvas-item c-4" style="--rot: -4deg;"><img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=500&q=80"></div>
+            <div class="canvas-item c-5" style="--rot: -10deg;"><img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=500&q=80"></div>
+        </div>
+    </section>
+
+    <!-- 模版五：极简独立卡片 (Cards) -->
+    <section id="cards" class="template-section">
+        <div class="layout-cards-container">
+            <div class="cards-header">
+                <h1>模块化思维</h1>
+                <p class="subtitle">信息的高效封装与优雅呈现</p>
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80" alt="卡片图1">
+                    </div>
+                    <div class="card-content">
+                        <h3>空间的哲学</h3>
+                        <p>将繁杂的内容降维为整齐划一的模块，赋予每一个信息单元独立的灵魂与呼吸空间。</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=600&q=80" alt="卡片图2">
+                    </div>
+                    <div class="card-content">
+                        <h3>光影的流动</h3>
+                        <p>阴影的运用不仅是为了拟物，更是为了建立视觉层级，让核心内容悬浮于背景之上。</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80" alt="卡片图3">
+                    </div>
+                    <div class="card-content">
+                        <h3>色彩的克制</h3>
+                        <p>在极简的框架内，克制地使用色彩，让图片本身的色调成为页面最具活力的视觉焦点。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 切换逻辑脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btns = document.querySelectorAll('.tab-btn');
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        // 滚动到对应位置，留出导航栏高度 (70px)
+                        const offset = 70;
+                        const elementPosition = targetSection.getBoundingClientRect().top + window.pageYOffset;
+                        
+                        window.scrollTo({
+                            top: elementPosition - offset,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
